@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>J&T Projects</title>
+<style>
+  :root {
+    --white: #FFFFFF;
+    --black: #1D1D1F;
+    --gray-1: #86868B;
+    --gray-2: #D2D2D7;
+    --gray-3: #F5F5F7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+    background: var(--white); color: var(--black);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    padding: 120px 48px 80px; max-width: 1200px; margin: 0 auto;
+  }
+  .hero-title {
+    font-size: clamp(48px, 7vw, 80px); font-weight: 600;
+    letter-spacing: -3px; line-height: 1.05; margin-bottom: 20px;
+  }
+  .hero-title .light { font-weight: 300; color: var(--gray-1); }
+  .hero-sub {
+    font-size: 21px; font-weight: 400; color: var(--gray-1);
+    line-height: 1.5; max-width: 520px; letter-spacing: -0.2px;
+  }
+
+  .divider { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+  .divider-line { height: 1px; background: var(--gray-2); }
+
+  .projects {
+    max-width: 1200px; margin: 0 auto; padding: 64px 48px 120px;
+  }
+  .projects-label {
+    font-size: 13px; font-weight: 700; color: var(--gray-1); margin-bottom: 40px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .project-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .tile {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 40px 48px; border-radius: 20px; background: var(--gray-3);
+    text-decoration: none; color: inherit;
+    transition: background 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+  }
+  .tile:hover { background: #EDEDF0; transform: scale(1.005); }
+  .tile-left { display: flex; align-items: center; gap: 32px; flex: 1; }
+  .tile-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .tile-content { flex: 1; }
+  .tile-title { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .tile-desc { font-size: 15px; color: var(--gray-1); line-height: 1.5; }
+  .tile-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; margin-left: 40px; }
+  .tile-status {
+    font-size: 13px; font-weight: 500; padding: 6px 16px;
+    border-radius: 980px;
+  }
+  .status-live { background: #E3F5E1; color: #1B7A1B; }
+  .status-soon { background: var(--gray-2); color: var(--gray-1); }
+  .tile-arrow {
+    font-size: 22px; color: var(--gray-2); font-weight: 300;
+    transition: color 0.3s, transform 0.3s;
+  }
+  .tile:hover .tile-arrow { color: var(--gray-1); transform: translateX(4px); }
+
+  .icon-baby { background: linear-gradient(135deg, #FDEEF4, #FDE2EC); }
+  .icon-card { background: linear-gradient(135deg, #E8F0FE, #D4E4FD); }
+
+  .tile-soon { cursor: default; opacity: 0.65; }
+  .tile-soon:hover { background: var(--gray-3); transform: none; }
+  .tile-soon .tile-arrow { display: none; }
+
+  .footer {
+    padding: 32px 48px; max-width: 1200px; margin: 0 auto;
+    border-top: 1px solid var(--gray-2);
+  }
+  .footer-text { font-size: 13px; color: var(--gray-1); }
+
+  @media (max-width: 768px) {
+    .hero, .projects, .footer { padding-left: 24px; padding-right: 24px; }
+    .divider { padding: 0 24px; }
+    .hero { padding-top: 80px; padding-bottom: 60px; }
+    .hero-title { letter-spacing: -2px; }
+    .hero-sub { font-size: 18px; }
+    .projects { padding-top: 48px; padding-bottom: 80px; }
+    .tile { padding: 28px 24px; flex-direction: column; align-items: flex-start; gap: 20px; }
+    .tile-left { gap: 20px; }
+    .tile-right { margin-left: 0; }
+  }
+
+  .fade { opacity: 0; transform: translateY(20px); animation: fadeIn 0.8s ease forwards; }
+  .d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.25s; }
+  .d3 { animation-delay: 0.4s; } .d4 { animation-delay: 0.55s; }
+  @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1 class="hero-title fade d1">J&T Projects<span class="light">.</span></h1>
+  <p class="hero-sub fade d2">Shared space for live and up and coming projects.</p>
+</section>
+
+<div class="divider fade d2"><div class="divider-line"></div></div>
+
+<section class="projects">
+  <div class="projects-label fade d3">PROJECTS</div>
+  <div class="project-list">
+
+    <a href="/babycrm/" class="tile fade d3">
+      <div class="tile-left">
+        <div class="tile-icon icon-baby">&#x1F476;</div>
+        <div class="tile-content">
+          <div class="tile-title">Baby Planner</div>
+          <div class="tile-desc">Tracking every milestone from Week 1 to delivery day.</div>
+        </div>
+      </div>
+      <div class="tile-right">
+        <span class="tile-status status-live">Live</span>
+        <span class="tile-arrow">&#8594;</span>
+      </div>
+    </a>
+
+    <div class="tile tile-soon fade d4">
+      <div class="tile-left">
+        <div class="tile-icon icon-card">&#x1F4B3;</div>
+        <div class="tile-content">
+          <div class="tile-title">CardMax</div>
+          <div class="tile-desc">Maximize credit card rewards across every purchase.</div>
+        </div>
+      </div>
+      <div class="tile-right">
+        <span class="tile-status status-soon">Coming soon</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="footer fade d4">
+  <div class="footer-text">&copy; 2026 Jason & Tanya</div>
+</footer>
+
+</body>
+</html>
