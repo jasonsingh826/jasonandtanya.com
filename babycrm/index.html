@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baby Journey Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #F5F2EB; color: #3D3528; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #3D405B 0%, #5C6080 100%); padding: 32px 28px 24px; color: #fff; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+  .header-subtitle { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; line-height: 1.2; }
+  .baby-tap { cursor: default; user-select: none; -webkit-user-select: none; }
+  .week-info { font-size: 14px; opacity: 0.8; margin-top: 6px; }
+  .pct { font-size: 36px; font-family: 'Playfair Display', serif; font-weight: 700; text-align: right; }
+  .pct-sub { font-size: 12px; opacity: 0.7; text-align: right; }
+  .progress-bar { margin-top: 20px; background: rgba(255,255,255,0.15); border-radius: 8px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #81B29A, #F2CC8F); border-radius: 8px; transition: width 0.5s ease; }
+  .tri-track { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .tri-card { flex: 1; min-width: 140px; border-radius: 10px; padding: 12px 14px; border: 1px solid transparent; }
+  .tri-card.active { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.35); }
+  .tri-card:not(.active) { background: rgba(255,255,255,0.08); }
+  .content { padding: 20px 28px; max-width: 1000px; margin: 0 auto; }
+  .sync-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 13px; }
+  .sync-bar.connected { background: #E8F5E9; border: 1px solid #A5D6A7; color: #2E7D32; }
+  .sync-bar.disconnected { background: #FFF3E0; border: 1px solid #FFCC80; color: #E65100; }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .sync-dot.on { background: #4CAF50; animation: pulse 2s infinite; }
+  .sync-dot.off { background: #FF9800; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .urgent-box { background: #FFF5F0; border: 1px solid #F0C9B6; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; }
+  .urgent-title { font-size: 13px; font-weight: 700; color: #C0392B; margin-bottom: 10px; }
+  .urgent-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .urgent-check { width: 18px; height: 18px; min-width: 18px; border-radius: 4px; border: 2px solid #E07A5F; cursor: pointer; }
+  .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .controls-left,.controls-right { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .btn { padding: 6px 14px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .btn-view { background: #E8E5DD; color: #6B5E4C; }
+  .btn-view.active { background: #3D405B; color: #fff; }
+  .btn-add { padding: 7px 16px; border-radius: 8px; border: none; background: #81B29A; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .search-input { padding: 7px 14px; border-radius: 8px; border: 1px solid #D5D0C6; font-size: 13px; background: #fff; font-family: 'DM Sans', sans-serif; outline: none; width: 160px; color: #3D3528; }
+  .filter-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; border: 1px solid #D5D0C6; background: #fff; color: #6B5E4C; }
+  .add-form { background: #fff; border: 1px solid #E0DCD4; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+  .add-form .title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  .add-form input[type="text"] { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #D5D0C6; font-size: 14px; font-family: 'DM Sans', sans-serif; margin-bottom: 12px; outline: none; }
+  .add-form .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .add-form select,.add-form input[type="number"] { padding: 8px 12px; border-radius: 8px; border: 1px solid #D5D0C6; font-size: 13px; font-family: 'DM Sans', sans-serif; background: #fff; }
+  .add-form input[type="number"] { width: 90px; }
+  .btn-submit { padding: 8px 20px; border-radius: 8px; border: none; background: #3D405B; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .task-card { background: #fff; border: 1px solid #E0DCD4; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s ease; }
+  .task-card.done { background: #F9F8F5; border-color: #E8E5DD; opacity: 0.6; }
+  .task-top { display: flex; align-items: flex-start; gap: 12px; }
+  .task-check { width: 22px; height: 22px; min-width: 22px; border-radius: 6px; border: 2px solid #C4BFB5; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-top: 1px; transition: all 0.15s ease; }
+  .task-check.done { border: none; }
+  .task-check.done span { color: #fff; font-size: 13px; font-weight: 700; }
+  .task-body { flex: 1; }
+  .task-text { font-size: 14px; font-weight: 500; color: #3D3528; line-height: 1.4; }
+  .task-text.done { color: #A09888; text-decoration: line-through; }
+  .task-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-high { background: #FDECEA; color: #C0392B; }
+  .badge-medium { background: #FEF5E7; color: #E67E22; }
+  .badge-low { background: #EBF5FB; color: #2980B9; }
+  .badge-week { background: #F0EDE6; color: #6B5E4C; font-weight: 500; }
+  .task-arrow { font-size: 11px; color: #A09888; transition: transform 0.2s; }
+  .task-arrow.open { transform: rotate(180deg); }
+  .task-expand { margin-top: 12px; padding-top: 12px; border-top: 1px solid #E8E5DD; }
+  .task-expand textarea { width: 100%; min-height: 60px; border: 1px solid #E0DCD4; border-radius: 8px; padding: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: #FAFAF7; color: #3D3528; resize: vertical; outline: none; }
+  .task-expand .actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .btn-delete { background: none; border: 1px solid #E07A5F; color: #E07A5F; padding: 4px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .cat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cat-header .icon { font-size: 18px; }
+  .cat-header .label { font-size: 16px; font-weight: 700; }
+  .cat-header .count { font-size: 12px; color: #A09888; font-weight: 500; }
+  .cat-bar { flex: 1; height: 3px; background: #E8E5DD; border-radius: 2px; }
+  .cat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+  .cat-group { margin-bottom: 24px; }
+  .tri-section { margin-bottom: 28px; }
+  .tri-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 10px 16px; border-radius: 10px; }
+  .tri-timeline { border-left: 3px solid; margin-left: 12px; padding-left: 20px; }
+  .empty { text-align: center; padding: 40px; color: #A09888; }
+  .footer { text-align: center; padding: 32px 0 20px; font-size: 12px; color: #B0A898; border-top: 1px solid #E0DCD4; margin-top: 24px; }
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); color: #fff; padding: 10px 24px; border-radius: 30px; font-size: 13px; font-weight: 600; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); animation: fadeInOut 2s ease forwards; }
+  .toast.on { background: #3D405B; } .toast.off { background: #81B29A; }
+  @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(-10px)} 15%{opacity:1;transform:translateX(-50%) translateY(0)} 80%{opacity:1} 100%{opacity:0} }
+  .setup-box { background: #fff; border: 1px solid #E0DCD4; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .setup-box h2 { font-size: 18px; font-family: 'Playfair Display', serif; margin-bottom: 12px; }
+  .setup-box p { font-size: 13px; color: #6B5E4C; line-height: 1.6; margin-bottom: 10px; }
+  .setup-box ol { font-size: 13px; color: #6B5E4C; line-height: 2.2; padding-left: 20px; margin-bottom: 16px; }
+  .setup-box code { background: #F0EDE6; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  .setup-box textarea { width: 100%; min-height: 140px; border: 1px solid #D5D0C6; border-radius: 8px; padding: 12px; font-size: 12px; font-family: monospace; background: #FAFAF7; outline: none; margin-bottom: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-save { padding: 10px 24px; border-radius: 8px; border: none; background: #81B29A; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .btn-skip { padding: 10px 24px; border-radius: 8px; border: 1px solid #D5D0C6; background: #fff; color: #6B5E4C; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const CATS = [
+  { id: "medical", label: "Medical & Appointments", icon: "\u{1F3E5}", color: "#E07A5F" },
+  { id: "babyproof", label: "Baby Proofing", icon: "\u{1F512}", color: "#81B29A" },
+  { id: "apartment", label: "New Apartment", icon: "\u{1F3E0}", color: "#F2CC8F" },
+  { id: "buy", label: "Things to Buy", icon: "\u{1F6D2}", color: "#3D405B" },
+  { id: "mental", label: "Mental Health", icon: "\u{1F9E0}", color: "#9B72AA" },
+  { id: "surprises", label: "Surprises for Wife", icon: "\u{1F381}", color: "#E07A5F" },
+  { id: "finance", label: "Financial Planning", icon: "\u{1F4B0}", color: "#81B29A" },
+  { id: "prep", label: "Dad Prep & Education", icon: "\u{1F4DA}", color: "#F2CC8F" },
+];
+const SEED = [
+  {id:1,cat:"medical",text:"Schedule first prenatal appointment (OB-GYN)",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:2,cat:"medical",text:"Research and choose OB-GYN or midwife together",week:3,trimester:1,done:false,priority:"high",notes:""},
+  {id:3,cat:"medical",text:"Start prenatal vitamins (folic acid is critical now)",week:2,trimester:1,done:false,priority:"high",notes:""},
+  {id:4,cat:"medical",text:"Get a home pregnancy test to confirm",week:2,trimester:1,done:false,priority:"high",notes:""},
+  {id:5,cat:"medical",text:"Review health insurance \u2014 understand maternity coverage",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:6,cat:"medical",text:"First ultrasound appointment (dating scan)",week:8,trimester:1,done:false,priority:"high",notes:""},
+  {id:7,cat:"medical",text:"Discuss genetic screening options",week:10,trimester:1,done:false,priority:"medium",notes:""},
+  {id:8,cat:"medical",text:"NT scan (nuchal translucency)",week:12,trimester:1,done:false,priority:"medium",notes:""},
+  {id:9,cat:"medical",text:"Anatomy scan (20-week ultrasound)",week:20,trimester:2,done:false,priority:"high",notes:""},
+  {id:10,cat:"medical",text:"Glucose tolerance test",week:26,trimester:2,done:false,priority:"medium",notes:""},
+  {id:11,cat:"medical",text:"Tour the hospital / birthing center",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:12,cat:"medical",text:"Pre-register at the hospital",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:13,cat:"medical",text:"Discuss birth plan with doctor",week:32,trimester:3,done:false,priority:"high",notes:""},
+  {id:14,cat:"medical",text:"Pack hospital bag",week:36,trimester:3,done:false,priority:"high",notes:""},
+  {id:15,cat:"medical",text:"Install infant car seat",week:36,trimester:3,done:false,priority:"high",notes:""},
+  {id:16,cat:"medical",text:"Pediatrician \u2014 research and choose one",week:32,trimester:3,done:false,priority:"high",notes:""},
+  {id:20,cat:"babyproof",text:"Audit home for sharp edges and corners",week:28,trimester:3,done:false,priority:"medium",notes:""},
+  {id:21,cat:"babyproof",text:"Install outlet covers",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:22,cat:"babyproof",text:"Secure heavy furniture to walls (anti-tip brackets)",week:30,trimester:3,done:false,priority:"high",notes:""},
+  {id:23,cat:"babyproof",text:"Install baby gates for stairs / kitchen",week:32,trimester:3,done:false,priority:"medium",notes:""},
+  {id:24,cat:"babyproof",text:"Lock cabinets with chemicals",week:30,trimester:3,done:false,priority:"high",notes:""},
+  {id:25,cat:"babyproof",text:"Check smoke & CO detectors",week:28,trimester:3,done:false,priority:"high",notes:""},
+  {id:26,cat:"babyproof",text:"Set water heater to 120\u00B0F max",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:27,cat:"babyproof",text:"Remove or secure blind cords",week:30,trimester:3,done:false,priority:"high",notes:""},
+  {id:28,cat:"babyproof",text:"Cover sharp table corners with bumpers",week:32,trimester:3,done:false,priority:"low",notes:""},
+  {id:29,cat:"babyproof",text:"Nursery safe sleep setup (firm mattress, no loose items)",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:30,cat:"apartment",text:"Start apartment hunting \u2014 prioritize space & safety",week:6,trimester:1,done:false,priority:"high",notes:""},
+  {id:31,cat:"apartment",text:"Research family-friendly neighborhoods",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:32,cat:"apartment",text:"Check proximity to hospitals & pediatricians",week:6,trimester:1,done:false,priority:"medium",notes:""},
+  {id:33,cat:"apartment",text:"Budget for larger apartment (2BR minimum)",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:34,cat:"apartment",text:"Check for lead paint (pre-1978 buildings)",week:8,trimester:1,done:false,priority:"high",notes:""},
+  {id:35,cat:"apartment",text:"Verify elevator access or manageable stairs",week:8,trimester:1,done:false,priority:"medium",notes:""},
+  {id:36,cat:"apartment",text:"Plan and execute the move (before 3rd trimester)",week:20,trimester:2,done:false,priority:"high",notes:""},
+  {id:37,cat:"apartment",text:"Set up nursery room",week:24,trimester:2,done:false,priority:"high",notes:""},
+  {id:38,cat:"apartment",text:"Deep clean new apartment before move-in",week:20,trimester:2,done:false,priority:"medium",notes:""},
+  {id:39,cat:"apartment",text:"Update address \u2014 insurance, subscriptions, mail",week:22,trimester:2,done:false,priority:"medium",notes:""},
+  {id:40,cat:"buy",text:"Crib + firm crib mattress",week:24,trimester:2,done:false,priority:"high",notes:""},
+  {id:41,cat:"buy",text:"Car seat (infant rear-facing)",week:30,trimester:3,done:false,priority:"high",notes:""},
+  {id:42,cat:"buy",text:"Stroller (travel system combo)",week:24,trimester:2,done:false,priority:"high",notes:""},
+  {id:43,cat:"buy",text:"Diapers \u2014 newborn & size 1 stockpile",week:32,trimester:3,done:false,priority:"high",notes:""},
+  {id:44,cat:"buy",text:"Baby monitor",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:45,cat:"buy",text:"Bottles & bottle warmer",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:46,cat:"buy",text:"Breast pump (check insurance coverage)",week:28,trimester:3,done:false,priority:"high",notes:""},
+  {id:47,cat:"buy",text:"Swaddles & sleep sacks",week:32,trimester:3,done:false,priority:"medium",notes:""},
+  {id:48,cat:"buy",text:"Onesies, socks, hats (newborn + 0-3mo)",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:49,cat:"buy",text:"Changing pad & diaper bag",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:50,cat:"buy",text:"Baby bath tub",week:32,trimester:3,done:false,priority:"low",notes:""},
+  {id:51,cat:"buy",text:"Nursing pillow",week:28,trimester:3,done:false,priority:"medium",notes:""},
+  {id:52,cat:"buy",text:"White noise machine",week:32,trimester:3,done:false,priority:"low",notes:""},
+  {id:53,cat:"buy",text:"Baby first aid kit",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:54,cat:"buy",text:"Maternity pillow",week:16,trimester:2,done:false,priority:"medium",notes:""},
+  {id:55,cat:"buy",text:"Create baby registry together",week:12,trimester:1,done:false,priority:"medium",notes:""},
+  {id:56,cat:"buy",text:"Rocker / glider chair for nursery",week:26,trimester:2,done:false,priority:"medium",notes:""},
+  {id:60,cat:"mental",text:"Research postpartum depression signs",week:20,trimester:2,done:false,priority:"high",notes:""},
+  {id:62,cat:"mental",text:"Find a couples therapist (preventive)",week:8,trimester:1,done:false,priority:"medium",notes:""},
+  {id:63,cat:"mental",text:"Schedule regular date nights before baby",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:66,cat:"mental",text:"Plan sleep deprivation shifts",week:30,trimester:3,done:false,priority:"high",notes:""},
+  {id:67,cat:"mental",text:"Discuss division of labor after birth",week:28,trimester:3,done:false,priority:"high",notes:""},
+  {id:69,cat:"mental",text:"Build support network \u2014 family, friends",week:20,trimester:2,done:false,priority:"medium",notes:""},
+  {id:70,cat:"mental",text:"Plan visitors policy after birth",week:32,trimester:3,done:false,priority:"medium",notes:""},
+  {id:80,cat:"surprises",text:"Weekly love note about the journey",week:2,trimester:1,done:false,priority:"medium",notes:""},
+  {id:81,cat:"surprises",text:"Prenatal massage gift certificate",week:14,trimester:2,done:false,priority:"medium",notes:""},
+  {id:82,cat:"surprises",text:"\"We're pregnant\" photo keepsake",week:8,trimester:1,done:false,priority:"low",notes:""},
+  {id:83,cat:"surprises",text:"Comfort care package (socks, tea, snacks)",week:6,trimester:1,done:false,priority:"medium",notes:""},
+  {id:84,cat:"surprises",text:"Babymoon trip \u2014 plan a relaxing getaway",week:20,trimester:2,done:false,priority:"high",notes:""},
+  {id:85,cat:"surprises",text:"Monthly belly photo + scrapbook",week:8,trimester:1,done:false,priority:"low",notes:""},
+  {id:86,cat:"surprises",text:"Push present \u2014 meaningful gift for delivery",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:87,cat:"surprises",text:"Cook her favorite meals during morning sickness",week:6,trimester:1,done:false,priority:"high",notes:""},
+  {id:88,cat:"surprises",text:"Write a letter to the baby together",week:24,trimester:2,done:false,priority:"low",notes:""},
+  {id:89,cat:"surprises",text:"Maternity photoshoot \u2014 book photographer",week:28,trimester:3,done:false,priority:"medium",notes:""},
+  {id:90,cat:"surprises",text:"Spa night at home (foot rub, candles, bath)",week:16,trimester:2,done:false,priority:"medium",notes:""},
+  {id:91,cat:"surprises",text:"Random flowers 'just because'",week:10,trimester:1,done:false,priority:"low",notes:""},
+  {id:100,cat:"finance",text:"Create a baby budget (first-year costs)",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:101,cat:"finance",text:"Review and update life insurance",week:8,trimester:1,done:false,priority:"high",notes:""},
+  {id:102,cat:"finance",text:"Increase emergency fund (6 months)",week:6,trimester:1,done:false,priority:"high",notes:""},
+  {id:103,cat:"finance",text:"Research 529 college savings plan",week:16,trimester:2,done:false,priority:"medium",notes:""},
+  {id:104,cat:"finance",text:"Update wills and designate guardians",week:20,trimester:2,done:false,priority:"high",notes:""},
+  {id:105,cat:"finance",text:"Understand paternity leave policy",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:106,cat:"finance",text:"Understand maternity leave policy",week:4,trimester:1,done:false,priority:"high",notes:""},
+  {id:107,cat:"finance",text:"Research childcare costs and options",week:16,trimester:2,done:false,priority:"high",notes:""},
+  {id:108,cat:"finance",text:"Add baby to health insurance (30-day window!)",week:38,trimester:3,done:false,priority:"high",notes:""},
+  {id:109,cat:"finance",text:"Look into FSA / HSA for medical expenses",week:8,trimester:1,done:false,priority:"medium",notes:""},
+  {id:110,cat:"prep",text:"Read 'The Expectant Father' by Armin Brott",week:4,trimester:1,done:false,priority:"medium",notes:""},
+  {id:111,cat:"prep",text:"Take a childbirth class together",week:24,trimester:2,done:false,priority:"high",notes:""},
+  {id:112,cat:"prep",text:"Learn infant CPR and first aid",week:28,trimester:3,done:false,priority:"high",notes:""},
+  {id:113,cat:"prep",text:"Practice swaddling",week:32,trimester:3,done:false,priority:"low",notes:""},
+  {id:114,cat:"prep",text:"Learn car seat installation",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:115,cat:"prep",text:"Understand breastfeeding basics",week:28,trimester:3,done:false,priority:"medium",notes:""},
+  {id:116,cat:"prep",text:"Meal prep & freeze for postpartum weeks",week:34,trimester:3,done:false,priority:"high",notes:""},
+  {id:117,cat:"prep",text:"Learn newborn sleep patterns",week:30,trimester:3,done:false,priority:"medium",notes:""},
+  {id:118,cat:"prep",text:"Research baby developmental milestones",week:20,trimester:2,done:false,priority:"low",notes:""},
+  {id:119,cat:"prep",text:"Notify work about upcoming leave",week:28,trimester:3,done:false,priority:"high",notes:""},
+];
+const SECRET = ["surprises","prep"];
+const TRI = {1:{label:"1st Trimester",weeks:"Weeks 1\u201313",color:"#E07A5F"},2:{label:"2nd Trimester",weeks:"Weeks 14\u201327",color:"#81B29A"},3:{label:"3rd Trimester",weeks:"Weeks 28\u201340",color:"#3D405B"}};
+const CW = 2;
+const FB_KEY = "pp_fb_cfg";
+
+function App() {
+  const [tasks, setTasks] = useState(SEED);
+  const [cat, setCat] = useState("all");
+  const [tri, setTri] = useState("all");
+  const [addOpen, setAddOpen] = useState(false);
+  const [expanded, setExpanded] = useState(null);
+  const [nt, setNt] = useState({cat:"medical",text:"",week:2,trimester:1,priority:"medium",notes:""});
+  const [q, setQ] = useState("");
+  const [vm, setVm] = useState("board");
+  const [secret, setSecret] = useState(false);
+  const [tc, setTc] = useState(0);
+  const [lt, setLt] = useState(0);
+  const [hint, setHint] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [setup, setSetup] = useState(false);
+  const [cfg, setCfg] = useState("");
+  const [ready, setReady] = useState(false);
+  const ref = useRef(null);
+  const skip = useRef(false);
+
+  useEffect(() => {
+    const s = localStorage.getItem(FB_KEY);
+    if (s) { try { init(JSON.parse(s)); } catch(e) { setSetup(true); } }
+    else setSetup(true);
+  }, []);
+
+  function init(c) {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(c); else firebase.app();
+      const db = firebase.database();
+      ref.current = db.ref("tasks");
+      ref.current.on("value", snap => {
+        if (skip.current) { skip.current = false; return; }
+        const v = snap.val();
+        if (v && Array.isArray(v)) setTasks(v);
+      });
+      db.ref(".info/connected").on("value", snap => setConnected(snap.val() === true));
+      setReady(true); setSetup(false);
+      localStorage.setItem(FB_KEY, JSON.stringify(c));
+    } catch(e) { console.error(e); setSetup(true); }
+  }
+
+  function saveCfg() {
+    try {
+      const t = cfg.trim();
+      // Extract key-value pairs directly with regex - handles any format
+      const keys = ["apiKey","authDomain","databaseURL","projectId","storageBucket","messagingSenderId","appId","measurementId"];
+      const c = {};
+      keys.forEach(k => {
+        // Match key: "value" or key: 'value' with flexible whitespace
+        const re = new RegExp(k + '\\s*[:\\s]\\s*["\']([^"\']+)["\']');
+        const m = t.match(re);
+        if (m) c[k] = m[1];
+      });
+      if (!c.apiKey || !c.databaseURL) { alert("Make sure you copied the full firebaseConfig block including the databaseURL. It should contain apiKey, databaseURL, projectId etc."); return; }
+      init(c);
+      if (ref.current) ref.current.once("value", snap => { if (!snap.val()) ref.current.set(SEED); });
+    } catch(e) { alert("Something went wrong. Try copying the entire code block from Firebase and pasting it all in."); }
+  }
+
+  function sync(t) { setTasks(t); if (ref.current && ready) { skip.current = true; ref.current.set(t); } }
+
+  const tap = useCallback(() => {
+    const n = Date.now();
+    if (n - lt < 600) { const c = tc + 1; setTc(c);
+      if (c >= 2) { setSecret(p => !p); setTc(0); setHint(true); setTimeout(() => setHint(false), 2000);
+        if (SECRET.includes(cat) && secret) setCat("all"); }
+    } else setTc(1);
+    setLt(n);
+  }, [tc, lt, secret, cat]);
+
+  const vc = secret ? CATS : CATS.filter(c => !SECRET.includes(c.id));
+  const vis = t => secret || !SECRET.includes(t.cat);
+  const ft = tasks.filter(t => { if (!vis(t)) return false; const cm = cat==="all"||t.cat===cat; const tm = tri==="all"||t.trimester===Number(tri); const sm = !q||t.text.toLowerCase().includes(q.toLowerCase()); return cm&&tm&&sm; });
+  const vt = tasks.filter(vis);
+  const tot = vt.length, done = vt.filter(t=>t.done).length, pct = tot?Math.round(done/tot*100):0;
+  const urg = vt.filter(t=>!t.done&&t.priority==="high"&&t.week<=CW+6).sort((a,b)=>a.week-b.week);
+  const cc = id => CATS.find(c=>c.id===id)?.color||"#3D405B";
+  const ci = id => CATS.find(c=>c.id===id)?.icon||"\u{1F4CB}";
+  const pl = {high:"Urgent",medium:"Medium",low:"Low"};
+  const pc = {high:"badge-high",medium:"badge-medium",low:"badge-low"};
+
+  function TC({task:t}) {
+    const ex = expanded===t.id;
+    return (<div className={`task-card${t.done?" done":""}`} style={{borderLeft:`4px solid ${cc(t.cat)}`}} onClick={()=>setExpanded(ex?null:t.id)}>
+      <div className="task-top">
+        <div className={`task-check${t.done?" done":""}`} style={t.done?{background:cc(t.cat)}:{}} onClick={e=>{e.stopPropagation();sync(tasks.map(x=>x.id===t.id?{...x,done:!x.done}:x));}}>
+          {t.done&&<span>{"\u2713"}</span>}
+        </div>
+        <div className="task-body">
+          <div className={`task-text${t.done?" done":""}`}>{t.text}</div>
+          <div className="task-badges"><span className={`badge ${pc[t.priority]}`}>{pl[t.priority]}</span><span className="badge badge-week">Week {t.week}</span><span style={{fontSize:"11px",color:"#8B7E6E"}}>{ci(t.cat)}</span></div>
+        </div>
+        <span className={`task-arrow${ex?" open":""}`}>{"\u25BC"}</span>
+      </div>
+      {ex&&<div className="task-expand">
+        <textarea value={t.notes} onChange={e=>sync(tasks.map(x=>x.id===t.id?{...x,notes:e.target.value}:x))} onClick={e=>e.stopPropagation()} placeholder="Add notes..." />
+        <div className="actions"><button className="btn-delete" onClick={e=>{e.stopPropagation();sync(tasks.filter(x=>x.id!==t.id));setExpanded(null);}}>Delete</button></div>
+      </div>}
+    </div>);
+  }
+
+  return (<div>
+    <div className="header">
+      <div className="header-top">
+        <div>
+          <div className="header-subtitle">Our Baby Journey</div>
+          <h1>The Journey Begins <span className="baby-tap" onClick={tap}>{"\u{1F476}"}</span></h1>
+          <div className="week-info">Currently at <strong>Week {CW}</strong> &mdash; Due ~October 2026</div>
+        </div>
+        <div><div className="pct">{pct}%</div><div className="pct-sub">{done} of {tot} done</div></div>
+      </div>
+      <div className="progress-bar"><div className="progress-fill" style={{width:`${pct}%`}} /></div>
+      <div className="tri-track">{[1,2,3].map(t=>{const i=TRI[t],tr=vt.filter(x=>x.trimester===t),d=tr.filter(x=>x.done).length,a=(t===1&&CW<=13)||(t===2&&CW>=14&&CW<=27)||(t===3&&CW>=28);return(<div key={t} className={`tri-card${a?" active":""}`}><div className="tri-label" style={{fontSize:"13px",fontWeight:600}}>{i.label}</div><div style={{fontSize:"11px",opacity:.7}}>{i.weeks}</div><div style={{fontSize:"12px",marginTop:"4px",opacity:.9}}>{d}/{tr.length} tasks</div></div>);})}</div>
+    </div>
+
+    {hint&&<div className={`toast ${secret?"on":"off"}`}>{secret?"\u{1F381} Dad mode unlocked!":"\u{1F512} Dad mode hidden"}</div>}
+
+    <div className="content">
+      {ready&&<div className={`sync-bar ${connected?"connected":"disconnected"}`}><div className={`sync-dot ${connected?"on":"off"}`}/>{connected?"\u{1F7E2} Live sync active \u2014 changes appear on all devices instantly":"\u{1F7E0} Reconnecting..."}</div>}
+
+      {setup&&<div className="setup-box">
+        <h2>{"\u{1F525}"} One-Time Setup (5 min, free forever)</h2>
+        <p>Connect Firebase so you and your wife both see changes in real time. You only do this once, then just share the link.</p>
+        <ol>
+          <li>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> &rarr; sign in with Google</li>
+          <li>Click <strong>"Create a project"</strong> &rarr; name it anything &rarr; disable Analytics &rarr; Create</li>
+          <li>Sidebar: <strong>Build &rarr; Realtime Database &rarr; Create Database</strong></li>
+          <li>Choose any location &rarr; select <strong>"Start in test mode"</strong> &rarr; Enable</li>
+          <li>Click <strong>gear icon &rarr; Project settings</strong></li>
+          <li>Scroll down &rarr; click <strong>&lt;/&gt;</strong> (web) icon &rarr; name it anything &rarr; Register app</li>
+          <li>Copy the <code>firebaseConfig = {'{ ... }'}</code> block and paste below:</li>
+        </ol>
+        <textarea value={cfg} onChange={e=>setCfg(e.target.value)} placeholder={'Paste your config here, e.g.:\n{\n  apiKey: "AIza...",\n  authDomain: "my-app.firebaseapp.com",\n  databaseURL: "https://my-app-default-rtdb.firebaseio.com",\n  projectId: "my-app",\n  storageBucket: "my-app.appspot.com",\n  messagingSenderId: "123",\n  appId: "1:123:web:abc"\n}'} />
+        <div className="btn-row"><button className="btn-save" onClick={saveCfg}>{"\u{1F517}"} Connect</button><button className="btn-skip" onClick={()=>setSetup(false)}>Skip (offline only)</button></div>
+      </div>}
+
+      {urg.length>0&&<div className="urgent-box"><div className="urgent-title">{"\u{1F525}"} DO NOW</div>{urg.slice(0,4).map(t=><div key={t.id} className="urgent-row"><div className="urgent-check" onClick={()=>sync(tasks.map(x=>x.id===t.id?{...x,done:true}:x))}/><span style={{fontSize:"13px",flex:1,color:"#5A3E2B"}}>{t.text}</span><span style={{fontSize:"11px",color:"#A0785E"}}>Wk {t.week}</span></div>)}</div>}
+
+      <div className="controls">
+        <div className="controls-left"><button className={`btn btn-view${vm==="board"?" active":""}`} onClick={()=>setVm("board")}>Board</button><button className={`btn btn-view${vm==="timeline"?" active":""}`} onClick={()=>setVm("timeline")}>Timeline</button></div>
+        <div className="controls-right"><input className="search-input" placeholder="Search..." value={q} onChange={e=>setQ(e.target.value)}/><button className="btn-add" onClick={()=>setAddOpen(!addOpen)}>+ Add Task</button></div>
+      </div>
+
+      {addOpen&&<div className="add-form"><div className="title">New Task</div><input type="text" placeholder="What needs to be done?" value={nt.text} onChange={e=>setNt(p=>({...p,text:e.target.value}))}/><div className="row">
+        <select value={nt.cat} onChange={e=>setNt(p=>({...p,cat:e.target.value}))}>{vc.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select>
+        <select value={nt.trimester} onChange={e=>setNt(p=>({...p,trimester:+e.target.value}))}><option value={1}>1st Tri</option><option value={2}>2nd Tri</option><option value={3}>3rd Tri</option></select>
+        <input type="number" min="1" max="40" value={nt.week} onChange={e=>setNt(p=>({...p,week:+e.target.value}))} placeholder="Week"/>
+        <select value={nt.priority} onChange={e=>setNt(p=>({...p,priority:e.target.value}))}><option value="high">Urgent</option><option value="medium">Medium</option><option value="low">Low</option></select>
+        <button className="btn-submit" onClick={()=>{if(!nt.text.trim())return;sync([...tasks,{...nt,id:Math.max(...tasks.map(t=>t.id))+1,done:false}]);setNt({cat:"medical",text:"",week:2,trimester:1,priority:"medium",notes:""});setAddOpen(false);}}>Add</button>
+      </div></div>}
+
+      <div className="filter-row">
+        <button className="filter-btn" style={cat==="all"?{background:"#3D405B",color:"#fff",borderColor:"#3D405B"}:{}} onClick={()=>setCat("all")}>All</button>
+        {vc.map(c=><button key={c.id} className="filter-btn" style={cat===c.id?{background:c.color,color:"#fff",borderColor:c.color}:{}} onClick={()=>setCat(c.id)}>{c.icon} {c.label}</button>)}
+      </div>
+      <div className="filter-row" style={{marginBottom:20}}>
+        <button className="filter-btn" style={tri==="all"?{background:"#3D405B",color:"#fff",borderColor:"#3D405B"}:{}} onClick={()=>setTri("all")}>All Trimesters</button>
+        {[1,2,3].map(t=><button key={t} className="filter-btn" style={tri===String(t)?{background:TRI[t].color,color:"#fff",borderColor:TRI[t].color}:{}} onClick={()=>setTri(String(t))}>{TRI[t].label}</button>)}
+      </div>
+
+      {vm==="board"&&<div>{(cat==="all"?vc:vc.filter(c=>c.id===cat)).map(c=>{const ct=ft.filter(t=>t.cat===c.id).sort((a,b)=>a.week-b.week);if(!ct.length)return null;const d=ct.filter(t=>t.done).length;return(<div key={c.id} className="cat-group"><div className="cat-header"><span className="icon">{c.icon}</span><span className="label" style={{color:c.color}}>{c.label}</span><span className="count">{d}/{ct.length}</span><div className="cat-bar"><div className="cat-bar-fill" style={{width:`${ct.length?d/ct.length*100:0}%`,background:c.color}}/></div></div>{ct.map(t=><TC key={t.id} task={t}/>)}</div>);})}</div>}
+
+      {vm==="timeline"&&<div>{[1,2,3].map(t=>{const tt=ft.filter(x=>x.trimester===t).sort((a,b)=>a.week-b.week);if(!tt.length)return null;const i=TRI[t];return(<div key={t} className="tri-section"><div className="tri-header" style={{background:i.color}}><span style={{fontSize:"16px",fontWeight:700,color:"#fff"}}>{i.label}</span><span style={{fontSize:"12px",color:"rgba(255,255,255,.8)"}}>{i.weeks}</span></div><div className="tri-timeline" style={{borderColor:i.color}}>{tt.map(t=><TC key={t.id} task={t}/>)}</div></div>);})}</div>}
+
+      {ft.length===0&&<div className="empty"><div style={{fontSize:"32px",marginBottom:"8px"}}>{"\u{1F50D}"}</div><div style={{fontSize:"14px"}}>No tasks found.</div></div>}
+      <div className="footer">Made with love for your growing family {"\u2764\uFE0F"}</div>
+    </div>
+  </div>);
+}
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+</script>
+</body>
+</html>
