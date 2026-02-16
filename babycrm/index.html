@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baby Planner — J&T</title>
+<style>
+:root{--w:#FFF;--b:#1D1D1F;--g1:#86868B;--g2:#D2D2D7;--g3:#F5F5F7;--red:#FF3B30;--grn:#34C759;--blu:#007AFF;--org:#FF9500;--pnk:#FF6B8A;--vio:#AF52DE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:var(--w);color:var(--b);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.hdr{padding:32px 48px 24px;max-width:1200px;margin:0 auto;border-bottom:1px solid var(--g2)}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.hdr-l h1{font-size:32px;font-weight:600;letter-spacing:-1.5px;margin-bottom:4px}
+.hdr-l .sub{font-size:15px;color:var(--g1)}
+.hdr-l .bk{font-size:13px;color:var(--blu);margin-bottom:8px;display:inline-block}
+.hdr-r{text-align:right}
+.hdr-r .pct{font-size:42px;font-weight:600;letter-spacing:-2px}
+.hdr-r .ps{font-size:13px;color:var(--g1)}
+.pbar{margin-top:20px;background:var(--g3);border-radius:6px;height:6px;overflow:hidden}
+.pfill{height:100%;background:var(--b);border-radius:6px;transition:width .5s}
+.due-row{display:flex;gap:24px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.due-row label{font-size:13px;color:var(--g1);font-weight:500}
+.due-row input[type="date"]{padding:6px 12px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.wbadge{font-size:13px;font-weight:600;background:var(--g3);padding:4px 14px;border-radius:20px}
+.odue{font-size:13px;font-weight:600;color:var(--red);background:#FFF0F0;padding:4px 14px;border-radius:20px}
+.cbadge{font-size:13px;font-weight:500;color:var(--g1)}
+.cnt{max-width:1200px;margin:0 auto;padding:24px 48px 60px}
+.sync-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;margin-bottom:16px;font-size:13px}
+.sync-bar.on{background:#F0FAF0;border:1px solid #C8E6C9;color:#2E7D32}
+.sync-bar.off{background:#FFF8E1;border:1px solid #FFE082;color:#F57F17}
+.sd{width:8px;height:8px;border-radius:50%}.sd.on{background:var(--grn);animation:pulse 2s infinite}.sd.off{background:var(--org)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.setup-box{background:var(--g3);border-radius:16px;padding:24px;margin-bottom:20px}
+.setup-box h2{font-size:18px;font-weight:600;margin-bottom:8px;letter-spacing:-.5px}
+.setup-box p{font-size:13px;color:var(--g1);line-height:1.7;margin-bottom:8px}
+.setup-box ol{font-size:13px;color:var(--g1);line-height:2.2;padding-left:20px;margin-bottom:14px}
+.setup-box textarea{width:100%;min-height:120px;border:1px solid var(--g2);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;background:var(--w);outline:none;margin-bottom:12px}
+.btnp{padding:10px 24px;border-radius:10px;border:none;background:var(--b);color:var(--w);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.btns{padding:10px 24px;border-radius:10px;border:1px solid var(--g2);background:var(--w);color:var(--g1);font-size:14px;cursor:pointer;font-family:inherit;margin-left:10px}
+.ctrls{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.ctrls-l,.ctrls-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.vb{padding:6px 16px;border-radius:8px;border:1px solid var(--g2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;background:var(--w);color:var(--g1);transition:all .2s}
+.vb.a{background:var(--b);color:var(--w);border-color:var(--b)}
+.si{padding:7px 14px;border-radius:8px;border:1px solid var(--g2);font-size:13px;font-family:inherit;outline:none;width:160px;color:var(--b)}
+.ba{padding:7px 16px;border-radius:8px;border:none;background:var(--b);color:var(--w);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.frow{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fb{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;border:1px solid var(--g2);background:var(--w);color:var(--g1);transition:all .2s}
+.fb.a{background:var(--b);color:var(--w);border-color:var(--b)}
+.af{background:var(--g3);border-radius:16px;padding:20px;margin-bottom:20px}
+.af .tl{font-size:15px;font-weight:600;margin-bottom:14px;letter-spacing:-.3px}
+.af input[type="text"],.af input[type="number"]{padding:8px 12px;border-radius:8px;border:1px solid var(--g2);font-size:13px;font-family:inherit;outline:none;background:var(--w)}
+.af input[type="text"]{width:100%;margin-bottom:12px}
+.af input[type="number"]{width:80px}
+.af .rw{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.af select{padding:8px 12px;border-radius:8px;border:1px solid var(--g2);font-size:13px;font-family:inherit;background:var(--w)}
+.tc{background:var(--g3);border-radius:14px;padding:16px 20px;margin-bottom:8px;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.tc:hover{border-color:var(--g2)}.tc.od{border-left:3px solid var(--red)}.tc.dn{opacity:.5}
+.tc-top{display:flex;align-items:flex-start;gap:12px}
+.ck{width:22px;height:22px;min-width:22px;border-radius:6px;border:2px solid var(--g2);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:1px;transition:all .15s}
+.ck.done{background:var(--grn);border-color:var(--grn)}.ck.done span{color:#fff;font-size:12px;font-weight:700}
+.ck.prog{background:var(--blu);border-color:var(--blu)}.ck.prog span{color:#fff;font-size:10px;font-weight:700}
+.tc-bd{flex:1}
+.tc-tx{font-size:14px;font-weight:500;line-height:1.4;letter-spacing:-.1px}
+.tc-tx.done{color:var(--g1);text-decoration:line-through}
+.tc-mt{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.bg{padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600}
+.bh{background:#FFF0F0;color:var(--red)}.bm{background:#FFF8E1;color:var(--org)}.bl{background:#E8F4FD;color:var(--blu)}
+.bw{background:var(--g3);color:var(--g1);font-weight:500;border:1px solid var(--g2)}.bc{background:#F0FAF0;color:var(--grn)}
+.ob{width:24px;height:24px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.oj{background:var(--blu)}.ot{background:var(--pnk)}.obth{background:var(--g1)}
+.tc-ar{font-size:11px;color:var(--g2);transition:transform .2s;margin-left:auto}.tc-ar.op{transform:rotate(180deg)}
+.tc-ex{margin-top:14px;padding-top:14px;border-top:1px solid var(--g2)}
+.tc-ex textarea{width:100%;min-height:60px;border:1px solid var(--g2);border-radius:10px;padding:10px;font-size:13px;font-family:inherit;background:var(--w);color:var(--b);resize:vertical;outline:none}
+.tc-ex .er{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.tc-ex select,.tc-ex input[type="number"]{padding:6px 10px;border:1px solid var(--g2);border-radius:8px;font-size:12px;font-family:inherit;background:var(--w)}
+.tc-ex input[type="number"]{width:90px}
+.bd{background:none;border:1px solid var(--red);color:var(--red);padding:4px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;margin-left:auto}
+.cg{margin-bottom:24px}
+.ch{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ch .ci{font-size:18px}.ch .cl{font-size:15px;font-weight:600;letter-spacing:-.3px}.ch .cc{font-size:12px;color:var(--g1)}
+.cb{flex:1;height:3px;background:var(--g3);border-radius:2px}.cb-f{height:100%;border-radius:2px;background:var(--b);transition:width .3s}
+.kan{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.kcol{background:var(--g3);border-radius:16px;padding:16px;min-height:200px}
+.kcol h3{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--g1);margin-bottom:14px;display:flex;justify-content:space-between}
+.kcol h3 span{background:var(--g2);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--g1)}
+.kcol .tc{background:var(--w)}
+.kcol.drag-over{background:#EAEAED;outline:2px dashed var(--g2);outline-offset:-2px}
+.tc.dragging{opacity:.4;transform:scale(.96)}
+.tc[draggable="true"]{cursor:grab}.tc[draggable="true"]:active{cursor:grabbing}
+@media(max-width:768px){.kan{grid-template-columns:1fr}}
+.tl{overflow-x:auto;padding-bottom:20px}.tl-tr{display:flex;gap:0;min-width:max-content}
+.tl-mo{min-width:260px;width:260px;padding:0 8px;flex-shrink:0}
+.tl-mh{padding:12px 16px;border-radius:12px 12px 0 0;text-align:center}
+.tl-mh .mm{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.tl-mh .mw{font-size:11px;color:var(--g1);margin-top:2px}
+.tl-mh .mt{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:4px;opacity:.7}
+.tl-ln{width:100%;height:3px;background:var(--g2);margin-bottom:12px}.tl-lf{height:100%;background:var(--b);border-radius:2px;transition:width .3s}
+.tl-ts{padding:4px}.tl-ts .tc{background:var(--w);margin-bottom:6px}
+.tl-cur .tl-mh{background:var(--b);color:var(--w)}.tl-cur .tl-mh .mw,.tl-cur .tl-mh .mt{color:rgba(255,255,255,.6)}
+/* Budget Styles */
+.bgt-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.bgt-card{background:var(--g3);border-radius:16px;padding:24px}
+.bgt-card .bc-label{font-size:12px;font-weight:600;color:var(--g1);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.bgt-card .bc-val{font-size:28px;font-weight:600;letter-spacing:-1px}
+.bgt-card .bc-sub{font-size:12px;color:var(--g1);margin-top:4px}
+.bgt-card.green .bc-val{color:var(--grn)}
+.bgt-card.red .bc-val{color:var(--red)}
+.bgt-cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.bgt-cat{background:var(--g3);border-radius:14px;padding:20px}
+.bgt-cat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.bgt-cat-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.bgt-cat-amt{font-size:14px;font-weight:600}
+.bgt-cat-bar{height:4px;background:var(--g2);border-radius:3px;margin-bottom:6px}
+.bgt-cat-fill{height:100%;border-radius:3px;transition:width .3s}
+.bgt-cat-detail{font-size:12px;color:var(--g1);display:flex;justify-content:space-between}
+.bgt-section{margin-bottom:32px}
+.bgt-section-title{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--g1);margin-bottom:16px}
+.bgt-item{display:flex;align-items:center;gap:16px;padding:14px 20px;background:var(--g3);border-radius:12px;margin-bottom:6px}
+.bgt-item-name{flex:1;font-size:14px;font-weight:500}
+.bgt-item-freq{font-size:12px;color:var(--g1);padding:2px 10px;background:var(--w);border-radius:20px;border:1px solid var(--g2)}
+.bgt-item-amt{font-size:14px;font-weight:600;min-width:80px;text-align:right}
+.bgt-item-del{background:none;border:none;color:var(--g2);cursor:pointer;font-size:16px;transition:color .2s}
+.bgt-item-del:hover{color:var(--red)}
+.bgt-add{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:24px}
+.bgt-add input,.bgt-add select{padding:8px 12px;border:1px solid var(--g2);border-radius:8px;font-size:13px;font-family:inherit;background:var(--w);outline:none}
+.bgt-add input[type="text"]{flex:1;min-width:200px}
+.bgt-add input[type="number"]{width:100px}
+.bgt-proj{background:var(--g3);border-radius:16px;padding:24px;margin-bottom:24px}
+.bgt-proj h3{font-size:15px;font-weight:600;margin-bottom:16px;letter-spacing:-.3px}
+.bgt-proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bgt-proj-item{text-align:center;padding:16px;background:var(--w);border-radius:12px}
+.bgt-proj-item .pv{font-size:22px;font-weight:600;letter-spacing:-1px}
+.bgt-proj-item .pl{font-size:11px;color:var(--g1);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+@media(max-width:768px){
+  .hdr,.cnt,.ftr{padding-left:24px;padding-right:24px}.hdr{padding-top:20px}
+  .bgt-cards{grid-template-columns:1fr 1fr}.bgt-cat-grid{grid-template-columns:1fr}.bgt-proj-grid{grid-template-columns:1fr}
+}
+.empty{text-align:center;padding:60px;color:var(--g1)}
+.ftr{text-align:left;padding:32px 48px;max-width:1200px;margin:0 auto;border-top:1px solid var(--g2);font-size:13px;color:var(--g1)}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;font-weight:600;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.15);font-family:inherit;animation:fio 2s ease forwards}
+.toast.t1{background:var(--b)}.toast.t2{background:var(--grn)}
+@keyframes fio{0%{opacity:0;transform:translateX(-50%) translateY(-10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script type="text/babel">
+const{useState,useEffect,useCallback,useRef}=React;
+const CATS=[
+  {id:"medical",label:"Medical",icon:"\u{1F3E5}",color:"var(--red)"},
+  {id:"babyproof",label:"Baby Proofing",icon:"\u{1F512}",color:"var(--grn)"},
+  {id:"apartment",label:"Apartment",icon:"\u{1F3E0}",color:"var(--org)"},
+  {id:"buy",label:"Things to Buy",icon:"\u{1F6D2}",color:"var(--b)"},
+  {id:"mental",label:"Mental Health",icon:"\u{1F9E0}",color:"var(--vio)"},
+  {id:"surprises",label:"Surprises",icon:"\u{1F381}",color:"var(--pnk)"},
+  {id:"finance",label:"Financial",icon:"\u{1F4B0}",color:"var(--grn)"},
+  {id:"prep",label:"Dad Prep",icon:"\u{1F4DA}",color:"var(--org)"},
+];
+const SECRET=["surprises","prep"];
+const MONTHS=[
+  {m:1,label:"Month 1",weeks:"Wk 1\u20134",tri:1},{m:2,label:"Month 2",weeks:"Wk 5\u20138",tri:1},{m:3,label:"Month 3",weeks:"Wk 9\u201313",tri:1},
+  {m:4,label:"Month 4",weeks:"Wk 14\u201317",tri:2},{m:5,label:"Month 5",weeks:"Wk 18\u201322",tri:2},{m:6,label:"Month 6",weeks:"Wk 23\u201327",tri:2},
+  {m:7,label:"Month 7",weeks:"Wk 28\u201331",tri:3},{m:8,label:"Month 8",weeks:"Wk 32\u201335",tri:3},{m:9,label:"Month 9",weeks:"Wk 36\u201340",tri:3},
+];
+function w2m(w){if(w<=4)return 1;if(w<=8)return 2;if(w<=13)return 3;if(w<=17)return 4;if(w<=22)return 5;if(w<=27)return 6;if(w<=31)return 7;if(w<=35)return 8;return 9}
+
+const SEED=[
+  {id:1,cat:"medical",text:"Schedule first prenatal appointment",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:2,cat:"medical",text:"Research and choose OB-GYN or midwife",week:3,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:3,cat:"medical",text:"Start prenatal vitamins (folic acid)",week:2,done:false,priority:"high",notes:"",owner:"tanya",cost:30,status:"todo"},
+  {id:4,cat:"medical",text:"Home pregnancy test",week:2,done:false,priority:"high",notes:"",owner:"both",cost:15,status:"todo"},
+  {id:5,cat:"medical",text:"Review health insurance maternity coverage",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:6,cat:"medical",text:"First ultrasound (dating scan)",week:8,done:false,priority:"high",notes:"",owner:"both",cost:200,status:"todo"},
+  {id:7,cat:"medical",text:"Genetic screening options",week:10,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:8,cat:"medical",text:"NT scan (nuchal translucency)",week:12,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:9,cat:"medical",text:"Anatomy scan (20-week)",week:20,done:false,priority:"high",notes:"",owner:"both",cost:300,status:"todo"},
+  {id:10,cat:"medical",text:"Glucose tolerance test",week:26,done:false,priority:"medium",notes:"",owner:"tanya",cost:null,status:"todo"},
+  {id:11,cat:"medical",text:"Tour hospital / birthing center",week:30,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:12,cat:"medical",text:"Pre-register at hospital",week:34,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:13,cat:"medical",text:"Discuss birth plan with doctor",week:32,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:14,cat:"medical",text:"Pack hospital bag",week:36,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:15,cat:"medical",text:"Install infant car seat",week:36,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:16,cat:"medical",text:"Choose a pediatrician",week:32,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:20,cat:"babyproof",text:"Audit home for sharp edges",week:28,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:21,cat:"babyproof",text:"Install outlet covers",week:30,done:false,priority:"medium",notes:"",owner:"jason",cost:20,status:"todo"},
+  {id:22,cat:"babyproof",text:"Secure furniture to walls",week:30,done:false,priority:"high",notes:"",owner:"jason",cost:40,status:"todo"},
+  {id:23,cat:"babyproof",text:"Install baby gates",week:32,done:false,priority:"medium",notes:"",owner:"jason",cost:80,status:"todo"},
+  {id:24,cat:"babyproof",text:"Lock cabinets with chemicals",week:30,done:false,priority:"high",notes:"",owner:"jason",cost:25,status:"todo"},
+  {id:25,cat:"babyproof",text:"Check smoke & CO detectors",week:28,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:26,cat:"babyproof",text:"Set water heater to 120\u00B0F",week:30,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:27,cat:"babyproof",text:"Remove or secure blind cords",week:30,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:28,cat:"babyproof",text:"Cover sharp table corners",week:32,done:false,priority:"low",notes:"",owner:"jason",cost:15,status:"todo"},
+  {id:29,cat:"babyproof",text:"Safe sleep setup",week:34,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:30,cat:"apartment",text:"Start apartment hunting",week:6,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:31,cat:"apartment",text:"Research neighborhoods",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:32,cat:"apartment",text:"Check proximity to hospitals",week:6,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:33,cat:"apartment",text:"Budget for larger apartment",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:34,cat:"apartment",text:"Check for lead paint",week:8,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:35,cat:"apartment",text:"Verify elevator access",week:8,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:36,cat:"apartment",text:"Execute the move",week:20,done:false,priority:"high",notes:"",owner:"both",cost:2000,status:"todo"},
+  {id:37,cat:"apartment",text:"Set up nursery",week:24,done:false,priority:"high",notes:"",owner:"both",cost:500,status:"todo"},
+  {id:38,cat:"apartment",text:"Deep clean new apartment",week:20,done:false,priority:"medium",notes:"",owner:"both",cost:200,status:"todo"},
+  {id:39,cat:"apartment",text:"Update address everywhere",week:22,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:40,cat:"buy",text:"Crib + firm mattress",week:24,done:false,priority:"high",notes:"",owner:"both",cost:350,status:"todo"},
+  {id:41,cat:"buy",text:"Car seat (infant)",week:30,done:false,priority:"high",notes:"",owner:"both",cost:250,status:"todo"},
+  {id:42,cat:"buy",text:"Stroller",week:24,done:false,priority:"high",notes:"",owner:"both",cost:400,status:"todo"},
+  {id:43,cat:"buy",text:"Diapers stockpile",week:32,done:false,priority:"high",notes:"",owner:"both",cost:120,status:"todo"},
+  {id:44,cat:"buy",text:"Baby monitor",week:30,done:false,priority:"medium",notes:"",owner:"jason",cost:150,status:"todo"},
+  {id:45,cat:"buy",text:"Bottles & warmer",week:30,done:false,priority:"medium",notes:"",owner:"both",cost:80,status:"todo"},
+  {id:46,cat:"buy",text:"Breast pump (check insurance)",week:28,done:false,priority:"high",notes:"",owner:"tanya",cost:null,status:"todo"},
+  {id:47,cat:"buy",text:"Swaddles & sleep sacks",week:32,done:false,priority:"medium",notes:"",owner:"both",cost:60,status:"todo"},
+  {id:48,cat:"buy",text:"Onesies, socks, hats",week:30,done:false,priority:"medium",notes:"",owner:"both",cost:100,status:"todo"},
+  {id:49,cat:"buy",text:"Changing pad & diaper bag",week:30,done:false,priority:"medium",notes:"",owner:"both",cost:90,status:"todo"},
+  {id:50,cat:"buy",text:"Baby bath tub",week:32,done:false,priority:"low",notes:"",owner:"both",cost:30,status:"todo"},
+  {id:51,cat:"buy",text:"Nursing pillow",week:28,done:false,priority:"medium",notes:"",owner:"tanya",cost:40,status:"todo"},
+  {id:52,cat:"buy",text:"White noise machine",week:32,done:false,priority:"low",notes:"",owner:"jason",cost:30,status:"todo"},
+  {id:53,cat:"buy",text:"Baby first aid kit",week:34,done:false,priority:"high",notes:"",owner:"both",cost:25,status:"todo"},
+  {id:54,cat:"buy",text:"Maternity pillow",week:16,done:false,priority:"medium",notes:"",owner:"jason",cost:50,status:"todo"},
+  {id:55,cat:"buy",text:"Create baby registry",week:12,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:56,cat:"buy",text:"Nursery rocker/glider",week:26,done:false,priority:"medium",notes:"",owner:"both",cost:300,status:"todo"},
+  {id:60,cat:"mental",text:"Research postpartum depression",week:20,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:62,cat:"mental",text:"Find couples therapist",week:8,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:63,cat:"mental",text:"Schedule regular date nights",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:66,cat:"mental",text:"Plan sleep deprivation shifts",week:30,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:67,cat:"mental",text:"Discuss division of labor",week:28,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:69,cat:"mental",text:"Build support network",week:20,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:70,cat:"mental",text:"Plan visitors policy",week:32,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:80,cat:"surprises",text:"Weekly love note",week:2,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:81,cat:"surprises",text:"Prenatal massage gift",week:14,done:false,priority:"medium",notes:"",owner:"jason",cost:120,status:"todo"},
+  {id:82,cat:"surprises",text:"\"We're pregnant\" keepsake",week:8,done:false,priority:"low",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:83,cat:"surprises",text:"Comfort care package",week:6,done:false,priority:"medium",notes:"",owner:"jason",cost:50,status:"todo"},
+  {id:84,cat:"surprises",text:"Babymoon trip",week:20,done:false,priority:"high",notes:"",owner:"jason",cost:1500,status:"todo"},
+  {id:85,cat:"surprises",text:"Monthly belly photo",week:8,done:false,priority:"low",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:86,cat:"surprises",text:"Push present",week:34,done:false,priority:"high",notes:"",owner:"jason",cost:500,status:"todo"},
+  {id:87,cat:"surprises",text:"Cook meals during morning sickness",week:6,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:88,cat:"surprises",text:"Letter to baby together",week:24,done:false,priority:"low",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:89,cat:"surprises",text:"Maternity photoshoot",week:28,done:false,priority:"medium",notes:"",owner:"jason",cost:300,status:"todo"},
+  {id:90,cat:"surprises",text:"Spa night at home",week:16,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:91,cat:"surprises",text:"Random flowers",week:10,done:false,priority:"low",notes:"",owner:"jason",cost:40,status:"todo"},
+  {id:100,cat:"finance",text:"Create baby budget",week:4,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:101,cat:"finance",text:"Update life insurance",week:8,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:102,cat:"finance",text:"Increase emergency fund",week:6,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:103,cat:"finance",text:"Research 529 plan",week:16,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:104,cat:"finance",text:"Update wills & guardians",week:20,done:false,priority:"high",notes:"",owner:"both",cost:500,status:"todo"},
+  {id:105,cat:"finance",text:"Paternity leave policy",week:4,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:106,cat:"finance",text:"Maternity leave policy",week:4,done:false,priority:"high",notes:"",owner:"tanya",cost:null,status:"todo"},
+  {id:107,cat:"finance",text:"Research childcare costs",week:16,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:108,cat:"finance",text:"Add baby to insurance (30-day window!)",week:38,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:109,cat:"finance",text:"Look into FSA/HSA",week:8,done:false,priority:"medium",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:110,cat:"prep",text:"Read 'The Expectant Father'",week:4,done:false,priority:"medium",notes:"",owner:"jason",cost:15,status:"todo"},
+  {id:111,cat:"prep",text:"Childbirth class together",week:24,done:false,priority:"high",notes:"",owner:"both",cost:200,status:"todo"},
+  {id:112,cat:"prep",text:"Infant CPR & first aid",week:28,done:false,priority:"high",notes:"",owner:"both",cost:null,status:"todo"},
+  {id:113,cat:"prep",text:"Practice swaddling",week:32,done:false,priority:"low",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:114,cat:"prep",text:"Car seat installation",week:34,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:115,cat:"prep",text:"Breastfeeding basics",week:28,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:116,cat:"prep",text:"Meal prep for postpartum",week:34,done:false,priority:"high",notes:"",owner:"jason",cost:200,status:"todo"},
+  {id:117,cat:"prep",text:"Newborn sleep patterns",week:30,done:false,priority:"medium",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:118,cat:"prep",text:"Developmental milestones",week:20,done:false,priority:"low",notes:"",owner:"jason",cost:null,status:"todo"},
+  {id:119,cat:"prep",text:"Notify work about leave",week:28,done:false,priority:"high",notes:"",owner:"jason",cost:null,status:"todo"},
+];
+
+const SEED_BUDGET=[
+  {id:1,name:"Hospital delivery (estimated)",amount:5000,freq:"once",cat:"medical"},
+  {id:2,name:"Monthly prenatal visits copay",amount:30,freq:"monthly",cat:"medical"},
+  {id:3,name:"Childcare (monthly, year 1)",amount:1800,freq:"monthly",cat:"finance"},
+  {id:4,name:"Diapers & wipes (monthly)",amount:80,freq:"monthly",cat:"buy"},
+  {id:5,name:"Formula/food (monthly)",amount:150,freq:"monthly",cat:"buy"},
+  {id:6,name:"Increased rent for bigger apt",amount:500,freq:"monthly",cat:"apartment"},
+];
+
+const FK="pp_fb3";
+function App(){
+  const[tasks,setTasks]=useState(SEED);
+  const[budgetItems,setBudgetItems]=useState(SEED_BUDGET);
+  const[dueDate,setDueDate]=useState("");
+  const[cat,setCat]=useState("all");
+  const[ofl,setOfl]=useState("all");
+  const[q,setQ]=useState("");
+  const[vm,setVm]=useState("board");
+  const[ao,setAo]=useState(false);
+  const[exp,setExp]=useState(null);
+  const[nt,setNt]=useState({cat:"medical",text:"",week:2,priority:"medium",notes:"",owner:"both",cost:""});
+  const[nb,setNb]=useState({name:"",amount:"",freq:"once",cat:"medical"});
+  const[sec,setSec]=useState(false);
+  const[tc,setTc]=useState(0);
+  const[lt,setLt]=useState(0);
+  const[hint,setHint]=useState(false);
+  const[conn,setConn]=useState(false);
+  const[sup,setSup]=useState(false);
+  const[cfg,setCfg]=useState("");
+  const[rdy,setRdy]=useState(false);
+  const tref=useRef(null);const bref=useRef(null);const dref=useRef(null);const sk=useRef(false);const bsk=useRef(false);
+
+  useEffect(()=>{const s=localStorage.getItem(FK);if(s){try{init(JSON.parse(s))}catch(e){setSup(true)}}else setSup(true)},[]);
+
+  function init(c){try{
+    if(!firebase.apps.length)firebase.initializeApp(c);
+    const db=firebase.database();
+    tref.current=db.ref("tasks_v3");bref.current=db.ref("budget_v3");dref.current=db.ref("due_date");
+    tref.current.on("value",s=>{if(sk.current){sk.current=false;return}const v=s.val();if(v&&Array.isArray(v))setTasks(v)});
+    bref.current.on("value",s=>{if(bsk.current){bsk.current=false;return}const v=s.val();if(v&&Array.isArray(v))setBudgetItems(v)});
+    dref.current.on("value",s=>{const v=s.val();if(v)setDueDate(v)});
+    db.ref(".info/connected").on("value",s=>setConn(s.val()===true));
+    setRdy(true);setSup(false);localStorage.setItem(FK,JSON.stringify(c));
+  }catch(e){console.error(e);setSup(true)}}
+
+  function saveCfg(){try{
+    const t=cfg.trim();const keys=["apiKey","authDomain","databaseURL","projectId","storageBucket","messagingSenderId","appId"];
+    const c={};keys.forEach(k=>{const r=new RegExp(k+'\\s*[:\\s]\\s*["\']([^"\']+)["\']');const m=t.match(r);if(m)c[k]=m[1]});
+    if(!c.apiKey||!c.databaseURL){alert("Need apiKey and databaseURL.");return}
+    init(c);
+    if(tref.current)tref.current.once("value",s=>{if(!s.val())tref.current.set(SEED)});
+    if(bref.current)bref.current.once("value",s=>{if(!s.val())bref.current.set(SEED_BUDGET)});
+  }catch(e){alert("Couldn't parse config.")}}
+
+  function sT(t){setTasks(t);if(tref.current&&rdy){sk.current=true;tref.current.set(t)}}
+  function sB(b){setBudgetItems(b);if(bref.current&&rdy){bsk.current=true;bref.current.set(b)}}
+  function sD(d){setDueDate(d);if(dref.current&&rdy)dref.current.set(d)}
+
+  let cw=2;
+  if(dueDate){const du=new Date(dueDate),now=new Date(),diff=Math.ceil((du-now)/(1000*60*60*24*7));cw=Math.max(1,Math.min(40,40-diff))}
+  const cm=w2m(cw);
+
+  const tap=useCallback(()=>{
+    const n=Date.now();
+    if(n-lt<600){const c=tc+1;setTc(c);if(c>=2){setSec(p=>!p);setTc(0);setHint(true);setTimeout(()=>setHint(false),2000);if(SECRET.includes(cat)&&sec)setCat("all")}}
+    else setTc(1);setLt(n);
+  },[tc,lt,sec,cat]);
+
+  const vc=sec?CATS:CATS.filter(c=>!SECRET.includes(c.id));
+  const vis=t=>sec||!SECRET.includes(t.cat);
+  const ft=tasks.filter(t=>{if(!vis(t))return false;const cm2=cat==="all"||t.cat===cat;const om=ofl==="all"||t.owner===ofl;const sm=!q||t.text.toLowerCase().includes(q.toLowerCase());return cm2&&om&&sm});
+  const vt=tasks.filter(vis);
+  const tot=vt.length,dn=vt.filter(t=>t.status==="done").length,pct=tot?Math.round(dn/tot*100):0;
+  const odCnt=vt.filter(t=>t.status!=="done"&&t.week<cw).length;
+
+  // Budget calculations
+  const taskCostTotal=vt.reduce((s,t)=>s+(t.cost||0),0);
+  const taskCostSpent=vt.filter(t=>t.status==="done").reduce((s,t)=>s+(t.cost||0),0);
+  const onceTotal=budgetItems.filter(b=>b.freq==="once").reduce((s,b)=>s+b.amount,0);
+  const monthlyTotal=budgetItems.filter(b=>b.freq==="monthly").reduce((s,b)=>s+b.amount,0);
+  const yearProjection=onceTotal+(monthlyTotal*12)+taskCostTotal;
+
+  const pl={high:"Urgent",medium:"Medium",low:"Low"};
+  const pcl={high:"bh",medium:"bm",low:"bl"};
+
+  function uT(id,f){sT(tasks.map(t=>t.id===id?{...t,...f}:t))}
+  function cyc(id){const t=tasks.find(x=>x.id===id);if(!t)return;const n=t.status==="todo"?"inprogress":t.status==="inprogress"?"done":"todo";uT(id,{status:n,done:n==="done"})}
+  function delT(id){sT(tasks.filter(t=>t.id!==id));setExp(null)}
+  function addT(){if(!nt.text.trim())return;const id=Math.max(0,...tasks.map(t=>t.id))+1;sT([...tasks,{...nt,id,done:false,status:"todo",cost:nt.cost?+nt.cost:null}]);setNt({cat:"medical",text:"",week:2,priority:"medium",notes:"",owner:"both",cost:""});setAo(false)}
+  function addBI(){if(!nb.name.trim()||!nb.amount)return;const id=Math.max(0,...budgetItems.map(b=>b.id))+1;sB([...budgetItems,{...nb,id,amount:+nb.amount}]);setNb({name:"",amount:"",freq:"once",cat:"medical"})}
+  function delBI(id){sB(budgetItems.filter(b=>b.id!==id))}
+
+  function TC({task:t}){
+    const ex=exp===t.id;const isOd=t.status!=="done"&&t.week<cw;
+    const sc=t.status==="done"?"done":t.status==="inprogress"?"prog":"";
+    return(<div className={`tc${t.status==="done"?" dn":""}${isOd?" od":""}`} onClick={()=>setExp(ex?null:t.id)}>
+      <div className="tc-top">
+        <div className={`ck ${sc}`} onClick={e=>{e.stopPropagation();cyc(t.id)}}>
+          {t.status==="done"&&<span>&#10003;</span>}{t.status==="inprogress"&&<span>&#9679;</span>}
+        </div>
+        <div className="tc-bd">
+          <div className={`tc-tx${t.status==="done"?" done":""}`}>{t.text}</div>
+          <div className="tc-mt">
+            <span className={`bg ${pcl[t.priority]}`}>{pl[t.priority]}</span>
+            <span className="bg bw">Wk {t.week}</span>
+            {t.cost!=null&&<span className="bg bc">${t.cost}</span>}
+            {isOd&&<span className="bg bh">Overdue</span>}
+            <div className={`ob o${t.owner==="jason"?"j":t.owner==="tanya"?"t":"bth"}`}>{t.owner==="jason"?"J":t.owner==="tanya"?"T":"J&T"}</div>
+          </div>
+        </div>
+        <span className={`tc-ar${ex?" op":""}`}>&#9660;</span>
+      </div>
+      {ex&&<div className="tc-ex" onClick={e=>e.stopPropagation()}>
+        <textarea value={t.notes||""} onChange={e=>uT(t.id,{notes:e.target.value})} placeholder="Add notes..."/>
+        <div className="er">
+          <select value={t.status} onChange={e=>{const s=e.target.value;uT(t.id,{status:s,done:s==="done"})}}><option value="todo">To Do</option><option value="inprogress">In Progress</option><option value="done">Done</option></select>
+          <select value={t.owner} onChange={e=>uT(t.id,{owner:e.target.value})}><option value="jason">Jason</option><option value="tanya">Tanya</option><option value="both">Both</option></select>
+          <select value={t.priority} onChange={e=>uT(t.id,{priority:e.target.value})}><option value="high">Urgent</option><option value="medium">Medium</option><option value="low">Low</option></select>
+          <input type="number" value={t.cost||""} onChange={e=>uT(t.id,{cost:e.target.value?+e.target.value:null})} placeholder="Cost $"/>
+          <button className="bd" onClick={()=>delT(t.id)}>Delete</button>
+        </div>
+      </div>}
+    </div>)}
+
+  function BoardView(){return(<div>{(cat==="all"?vc:vc.filter(c=>c.id===cat)).map(c=>{
+    const ct=ft.filter(t=>t.cat===c.id).sort((a,b)=>a.week-b.week);if(!ct.length)return null;
+    const d=ct.filter(t=>t.status==="done").length;
+    return(<div key={c.id} className="cg"><div className="ch"><span className="ci">{c.icon}</span><span className="cl">{c.label}</span><span className="cc">{d}/{ct.length}</span><div className="cb"><div className="cb-f" style={{width:`${ct.length?d/ct.length*100:0}%`}}/></div></div>{ct.map(t=><TC key={t.id} task={t}/>)}</div>)})}</div>)}
+
+  const[dragId,setDragId]=useState(null);
+  const[dragOver,setDragOver]=useState(null);
+
+  function KanbanView(){
+    const cols=[{key:"todo",label:"TO DO"},{key:"inprogress",label:"IN PROGRESS"},{key:"done",label:"DONE"}];
+    function onDragStart(e,id){setDragId(id);e.dataTransfer.effectAllowed="move"}
+    function onDragEnd(){setDragId(null);setDragOver(null)}
+    function onDragOverCol(e,key){e.preventDefault();e.dataTransfer.dropEffect="move";setDragOver(key)}
+    function onDragLeave(){setDragOver(null)}
+    function onDrop(e,key){e.preventDefault();if(dragId!=null){const s=key;uT(dragId,{status:s,done:s==="done"})};setDragId(null);setDragOver(null)}
+    return(<div className="kan">{cols.map(col=>{const items=ft.filter(t=>t.status===col.key).sort((a,b)=>a.week-b.week);
+      return(<div key={col.key} className={`kcol${dragOver===col.key?" drag-over":""}`} onDragOver={e=>onDragOverCol(e,col.key)} onDragLeave={onDragLeave} onDrop={e=>onDrop(e,col.key)}>
+        <h3>{col.label}<span>{items.length}</span></h3>
+        {items.map(t=><div key={t.id} draggable="true" onDragStart={e=>onDragStart(e,t.id)} onDragEnd={onDragEnd} className={dragId===t.id?"dragging":""}><TC task={t}/></div>)}
+      </div>)})}</div>)}
+
+  function TimelineView(){return(<div className="tl"><div className="tl-tr">{MONTHS.map(mo=>{
+    const mt=ft.filter(t=>w2m(t.week)===mo.m).sort((a,b)=>a.week-b.week);const md=mt.filter(t=>t.status==="done").length;const ic=cm===mo.m;
+    return(<div key={mo.m} className={`tl-mo${ic?" tl-cur":""}`}><div className="tl-mh" style={!ic?{background:"var(--g3)"}:{}}>
+      <div className="mm">{mo.label}</div><div className="mw">{mo.weeks}</div><div className="mt">Trimester {mo.tri}</div>
+    </div><div className="tl-ln"><div className="tl-lf" style={{width:`${mt.length?md/mt.length*100:0}%`}}/></div>
+    <div className="tl-ts">{mt.map(t=><TC key={t.id} task={t}/>)}</div></div>)})}</div></div>)}
+
+  function BudgetView(){
+    const catBudgets=vc.map(c=>{
+      const tCosts=vt.filter(t=>t.cat===c.id);
+      const total=tCosts.reduce((s,t)=>s+(t.cost||0),0)+budgetItems.filter(b=>b.cat===c.id&&b.freq==="once").reduce((s,b)=>s+b.amount,0);
+      const spent=tCosts.filter(t=>t.status==="done").reduce((s,t)=>s+(t.cost||0),0);
+      const monthly=budgetItems.filter(b=>b.cat===c.id&&b.freq==="monthly").reduce((s,b)=>s+b.amount,0);
+      return{...c,total,spent,monthly};
+    }).filter(c=>c.total>0||c.monthly>0);
+
+    return(<div>
+      <div className="bgt-cards">
+        <div className="bgt-card"><div className="bc-label">Task Costs</div><div className="bc-val">${taskCostTotal.toLocaleString()}</div><div className="bc-sub">Across all tasks</div></div>
+        <div className="bgt-card green"><div className="bc-label">Spent</div><div className="bc-val">${taskCostSpent.toLocaleString()}</div><div className="bc-sub">Completed tasks</div></div>
+        <div className="bgt-card"><div className="bc-label">Monthly Recurring</div><div className="bc-val">${monthlyTotal.toLocaleString()}/mo</div><div className="bc-sub">{budgetItems.filter(b=>b.freq==="monthly").length} items</div></div>
+        <div className="bgt-card"><div className="bc-label">One-Time Extras</div><div className="bc-val">${onceTotal.toLocaleString()}</div><div className="bc-sub">{budgetItems.filter(b=>b.freq==="once").length} items</div></div>
+      </div>
+
+      <div className="bgt-proj">
+        <h3>First Year Projection</h3>
+        <div className="bgt-proj-grid">
+          <div className="bgt-proj-item"><div className="pv">${taskCostTotal.toLocaleString()}</div><div className="pl">Task Purchases</div></div>
+          <div className="bgt-proj-item"><div className="pv">${onceTotal.toLocaleString()}</div><div className="pl">One-Time Costs</div></div>
+          <div className="bgt-proj-item"><div className="pv">${(monthlyTotal*12).toLocaleString()}</div><div className="pl">Annual Recurring</div></div>
+        </div>
+        <div style={{textAlign:"center",marginTop:16,fontSize:20,fontWeight:600,letterSpacing:-1}}>
+          Total estimated first year: <span style={{color:"var(--red)"}}>${yearProjection.toLocaleString()}</span>
+        </div>
+      </div>
+
+      <div className="bgt-section">
+        <div className="bgt-section-title">SPENDING BY CATEGORY</div>
+        <div className="bgt-cat-grid">{catBudgets.map(c=>(
+          <div key={c.id} className="bgt-cat">
+            <div className="bgt-cat-top"><span className="bgt-cat-name">{c.icon} {c.label}</span><span className="bgt-cat-amt">${(c.total+c.monthly*12).toLocaleString()}</span></div>
+            <div className="bgt-cat-bar"><div className="bgt-cat-fill" style={{width:`${c.total?(c.spent/c.total*100):0}%`,background:c.color}}/></div>
+            <div className="bgt-cat-detail"><span>${c.spent.toLocaleString()} spent</span>{c.monthly>0&&<span>${c.monthly}/mo recurring</span>}</div>
+          </div>))}</div>
+      </div>
+
+      <div className="bgt-section">
+        <div className="bgt-section-title">STANDALONE BUDGET ITEMS</div>
+        <div className="bgt-add">
+          <input type="text" placeholder="Item name..." value={nb.name} onChange={e=>setNb(p=>({...p,name:e.target.value}))}/>
+          <input type="number" placeholder="Amount" value={nb.amount} onChange={e=>setNb(p=>({...p,amount:e.target.value}))}/>
+          <select value={nb.freq} onChange={e=>setNb(p=>({...p,freq:e.target.value}))}><option value="once">One-time</option><option value="monthly">Monthly</option></select>
+          <select value={nb.cat} onChange={e=>setNb(p=>({...p,cat:e.target.value}))}>{vc.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select>
+          <button className="btnp" onClick={addBI}>Add</button>
+        </div>
+        {budgetItems.map(b=>(
+          <div key={b.id} className="bgt-item">
+            <span style={{fontSize:16}}>{CATS.find(c=>c.id===b.cat)?.icon||"\u{1F4B0}"}</span>
+            <span className="bgt-item-name">{b.name}</span>
+            <span className="bgt-item-freq">{b.freq==="monthly"?"Monthly":"One-time"}</span>
+            <span className="bgt-item-amt">${b.amount.toLocaleString()}{b.freq==="monthly"&&"/mo"}</span>
+            <button className="bgt-item-del" onClick={()=>delBI(b.id)}>&times;</button>
+          </div>))}
+      </div>
+    </div>)}
+
+  return(<div>
+    <div className="hdr">
+      <div className="hdr-top">
+        <div className="hdr-l"><a href="/" className="bk">&larr; J&T Projects</a>
+          <h1>Baby Planner <span style={{cursor:"default",userSelect:"none"}} onClick={tap}>&#x1F476;</span></h1>
+          <div className="sub">Tracking every milestone from Week 1 to delivery day.</div>
+        </div>
+        <div className="hdr-r"><div className="pct">{pct}%</div><div className="ps">{dn} of {tot} done</div></div>
+      </div>
+      <div className="pbar"><div className="pfill" style={{width:`${pct}%`}}/></div>
+      <div className="due-row">
+        <div><label>Due date </label><input type="date" value={dueDate} onChange={e=>sD(e.target.value)}/></div>
+        <span className="wbadge">Week {cw} &middot; Month {cm}</span>
+        {odCnt>0&&<span className="odue">{odCnt} overdue</span>}
+        <span className="cbadge">${taskCostSpent.toLocaleString()} spent / ${taskCostTotal.toLocaleString()} budgeted</span>
+      </div>
+    </div>
+
+    {hint&&<div className={`toast ${sec?"t1":"t2"}`}>{sec?"\u{1F381} Dad mode unlocked!":"\u{1F512} Dad mode hidden"}</div>}
+
+    <div className="cnt">
+      {rdy&&<div className={`sync-bar ${conn?"on":"off"}`}><div className={`sd ${conn?"on":"off"}`}/>{conn?"Live sync active":"Reconnecting..."}</div>}
+
+      {sup&&<div className="setup-box"><h2>Firebase Setup</h2><p>Connect so both of you see changes in real time.</p>
+        <ol><li>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></li>
+        <li>Create project &rarr; Build &rarr; Realtime Database &rarr; test mode</li>
+        <li>Gear &rarr; Project settings &rarr; Add web app &rarr; Copy config</li></ol>
+        <textarea value={cfg} onChange={e=>setCfg(e.target.value)} placeholder="Paste firebaseConfig here..."/>
+        <div><button className="btnp" onClick={saveCfg}>Connect</button><button className="btns" onClick={()=>setSup(false)}>Skip</button></div>
+      </div>}
+
+      <div className="ctrls">
+        <div className="ctrls-l">
+          {["board","kanban","timeline","budget"].map(v=><button key={v} className={`vb${vm===v?" a":""}`} onClick={()=>setVm(v)}>{v.charAt(0).toUpperCase()+v.slice(1)}</button>)}
+        </div>
+        {vm!=="budget"&&<div className="ctrls-r"><input className="si" placeholder="Search..." value={q} onChange={e=>setQ(e.target.value)}/><button className="ba" onClick={()=>setAo(!ao)}>+ Add Task</button></div>}
+      </div>
+
+      {ao&&vm!=="budget"&&<div className="af"><div className="tl">New Task</div>
+        <input type="text" placeholder="What needs to be done?" value={nt.text} onChange={e=>setNt(p=>({...p,text:e.target.value}))}/>
+        <div className="rw">
+          <select value={nt.cat} onChange={e=>setNt(p=>({...p,cat:e.target.value}))}>{vc.map(c=><option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}</select>
+          <input type="number" min="1" max="40" value={nt.week} onChange={e=>setNt(p=>({...p,week:+e.target.value}))} placeholder="Week"/>
+          <select value={nt.priority} onChange={e=>setNt(p=>({...p,priority:e.target.value}))}><option value="high">Urgent</option><option value="medium">Medium</option><option value="low">Low</option></select>
+          <select value={nt.owner} onChange={e=>setNt(p=>({...p,owner:e.target.value}))}><option value="jason">Jason</option><option value="tanya">Tanya</option><option value="both">Both</option></select>
+          <input type="number" value={nt.cost} onChange={e=>setNt(p=>({...p,cost:e.target.value}))} placeholder="Cost $"/>
+          <button className="btnp" onClick={addT}>Add</button>
+        </div>
+      </div>}
+
+      {vm!=="budget"&&<><div className="frow">
+        <button className={`fb${cat==="all"?" a":""}`} onClick={()=>setCat("all")}>All</button>
+        {vc.map(c=><button key={c.id} className={`fb${cat===c.id?" a":""}`} onClick={()=>setCat(c.id)}>{c.icon} {c.label}</button>)}
+      </div>
+      <div className="frow" style={{marginBottom:20}}>
+        {["all","jason","tanya","both"].map(o=><button key={o} className={`fb${ofl===o?" a":""}`} onClick={()=>setOfl(o)}>{o==="all"?"All":o==="jason"?"Jason":o==="tanya"?"Tanya":"Both"}</button>)}
+      </div></>}
+
+      {vm==="board"&&<BoardView/>}
+      {vm==="kanban"&&<KanbanView/>}
+      {vm==="timeline"&&<TimelineView/>}
+      {vm==="budget"&&<BudgetView/>}
+
+      {vm!=="budget"&&ft.length===0&&<div className="empty">No tasks found.</div>}
+    </div>
+    <footer className="ftr">&copy; 2026 Jason & Tanya</footer>
+  </div>)}
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+</script>
+</body>
+</html>
